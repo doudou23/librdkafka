@@ -35,6 +35,17 @@ function checks {
             Linux)
                 sys=Linux
                 solib_ext=.so
+
+                if [[ -f /etc/os-release ]]; then
+                    eval $(grep ^ID= /etc/os-release)
+                    if [[ -n $ID ]]; then
+                        sys="$ID"
+                    fi
+                elif [[ -f /etc/centos-release ]]; then
+                    sys=centos
+                elif [[ -f /etc/alpine-release ]]; then
+                    sys=alpine
+                fi
                 ;;
             Darwin)
                 sys=osx
@@ -55,6 +66,8 @@ function checks {
         mkl_check_failed "distro" "" "ignore" ""
     else
         mkl_check_done "distro" "" "ignore" "ok" "$sys"
+        # Convert to lower case
+        sys=$(echo $sys | tr '[:upper:]' '[:lower:]')
         mkl_mkvar_set "distro" "MKL_DISTRO" "$sys"
         mkl_allvar_set "distro" "SOLIB_EXT" "$solib_ext"
     fi
